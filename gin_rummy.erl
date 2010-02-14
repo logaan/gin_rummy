@@ -25,10 +25,6 @@ new_deck() ->
   {atomic, Deck} = mnesia:transaction(Fun),
   shuffle_deck(Deck).
 
-% This was the original implementation:
-% shuffle_deck(Deck) ->
-%   lists:sort(fun(_, _) -> random:uniform(2) == 1 end, Deck).
-% But I think calling random_draw/1 will give a better distribution
 shuffle_deck(Deck) ->
   shuffle_deck([], Deck).
 shuffle_deck(Deck, []) ->
@@ -43,10 +39,12 @@ random_draw(Deck) ->
   NewDeck = lists:delete(Card, Deck),
   {Card, NewDeck}.
 
-draw([Card | Deck ]) ->
-  {Card, Deck}.
-draw(NumberOfCards, Deck) ->
-  lists:split(NumberOfCards, Deck).
+move(ToDeck, [Card | FromDeck ]) ->
+  {[Card | ToDeck], FromDeck}.
+move(NumberOfCards, ToDeck, FromDeck) ->
+  {Cards, NewFromDeck} = lists:split(NumberOfCards, FromDeck),
+  NewToDeck = lists:append([Cards, ToDeck]),
+  {NewToDeck, NewFromDeck}.
 
 generate_playing_cards() ->
   Suites = ["Hearts", "Diamonds", "Spades", "Clubs"],
@@ -59,8 +57,15 @@ generate_playing_cards() ->
 
 start_game(Player1Name, Player2Name) ->
   Deck1 = new_deck(),
-  {Player1Hand, Deck2} = draw(10, Deck1),
-  {Player2Hand, Deck3} = draw(10, Deck2),
+  {Player1Hand, Deck2} = move(10, [], Deck1),
+  {Player2Hand, Deck3} = move(10, [], Deck2),
   Player1 = #player{ name = Player1Name, hand = Player1Hand },
   Player2 = #player{ name = Player2Name, hand = Player2Hand },
   #game{ player1 = Player1, player2 = Player2, deck = Deck3, discard = [] }.
+
+display_game(Game) ->
+  io:format(io_lib:print(Game)).
+
+display_card({card, Name, _Properties}) ->
+  io:format("~s~n", [Name]).
+
