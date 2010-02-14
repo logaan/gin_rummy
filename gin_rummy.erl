@@ -64,7 +64,7 @@ start_game(Player1Name, Player2Name) ->
   #game{ player1 = Player1, player2 = Player2, deck = Deck3, discard = [] }.
 
 display_game(Game) ->
-  io:format(io_lib:print(Game)).
+  io:format("~s~n", [io_lib:print(Game)]).
 
 display_card({card, Name, _Properties}) ->
   io:format("~s~n", [Name]).

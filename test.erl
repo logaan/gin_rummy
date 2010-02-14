@@ -11,8 +11,13 @@ main(_) ->
   gin_rummy:setup_database(),
   lists:map(fun gin_rummy:insert_card/1, gin_rummy:generate_playing_cards()),
 
-  io:format("=== Starting game ===~n"),
-  Game = gin_rummy:start_game("Colin", "Royce"),
+  % io:format("=== Starting game ===~n"),
+  % Game = gin_rummy:start_game("Colin", "Royce"),
+  % gin_rummy:display_game(Game),
+
+  io:format("=== Starting game server ===~n"),
+  {ok, ServerPid} = game_server:start("Colin", "Royce"),
+  Game = gen_server:call(ServerPid, game_state),
   gin_rummy:display_game(Game),
 
   io:format("=== Tearing down database ===~n"),
